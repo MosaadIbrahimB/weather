@@ -1,27 +1,21 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 void main() async{
-  getWeather();
-  print('aaa');
+
+ http.Response result=await http.get(Uri.parse('http://api.weatherapi.com/v1/current.json?key=104602adc57a446cbbd162702231902&q=cairo&aqi=no'));
+   var resultJson=jsonDecode(result.body);
+  print(resultJson['location']['name']);
+  print(resultJson['location']['localtime']);
 
 }
 
-Future prin55(){
-  return Future.delayed( Duration(seconds: 2), () => '66' );
-
-
+Future<String> welcomeName(String name)async{
+return await printWelcome()+name;
 }
 
-
-
-void getWeather()async {
-  Uri u = Uri.parse( "http://api.weatherapi.com/v1/current.json?key=104602adc57a446cbbd162702231902&q=London&aqi=no");
-  http.Response response = await http.get(u);
-  print(response.body);
-}
-
-
-
+Future<String>printWelcome()async=>await Future .delayed(Duration(seconds: 2),() => 'welcome ',);
 
 // class WeatherService {
 //   Future<WeatherModel?> getWeather({required String cityName}) async {

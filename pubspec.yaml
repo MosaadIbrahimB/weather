@@ -28,6 +28,11 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  provider:
+  jiffy: ^5.0.1
+  date_format: ^2.0.2
+  geolocator: ^9.0.2
+  flutter_native_splash: ^2.2.16
   http: ^0.13.5
   awesome_dialog: ^3.0.2
   dropdown_search: ^5.0.5
