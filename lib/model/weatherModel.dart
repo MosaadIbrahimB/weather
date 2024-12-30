@@ -1,56 +1,152 @@
 import 'package:flutter/material.dart';
+import 'package:weather/screen/weather_entity.dart';
 
 class WeatherModel {
-  DateTime date;
-  String  weatherStateName;
-  double temp, minTemp, maxTemp;
+  Location? location;
+  Forecast? forecast;
 
-  WeatherModel(
-      {required this.date,
-      required this.weatherStateName,
-      required this.temp,
-      required this.maxTemp,
-      required this.minTemp});
+  WeatherModel({this.location, this.forecast});
 
-  factory WeatherModel.fromjson(dynamic data) {
-    var dataTemp = data['forecast']['forecastday'][0]['day'];
-    // var time=data['location']['localtime'];
-
-    String time = '2019-10-30T10:12:00';
-    DateTime dateTime = DateTime.parse(time);
-    // String formatted = formatDateWithAmPm(dateTime);
-    return WeatherModel(
-        date: dateTime,
-        minTemp: dataTemp['mintemp_c'],
-        weatherStateName: dataTemp['condition']["text"],
-        temp: dataTemp['avgtemp_c'],
-        maxTemp: dataTemp['maxtemp_c']);
+  WeatherModel.fromJson(Map<String, dynamic> json) {
+    location = json['location'] != null
+        ? new Location.fromJson(json['location'])
+        : null;
+    forecast = json['forecast'] != null
+        ? new Forecast.fromJson(json['forecast'])
+        : null;
   }
 
 
-  String getImg(){
-    String img=
-    (weatherStateName=='Sunny'||weatherStateName=='Clear')?'assets/img/clear.png':(weatherStateName=='Cloudy'||weatherStateName=='Snow')?'assets/img/cloudy.png':'assets/img/rainy.png';
-        return img;
+  WeatherEntity modelToEntity(){
+    return WeatherEntity(
+      nameCity: location?.name,
+      date: location?.localtime?.substring(0,10),
+      time: location?.localtime?.substring(10),
+      minDegree: forecast?.forecastday![0].day?.mintempC,
+      maxDegree: forecast?.forecastday![0].day?.maxtempC,
+      avgDegree: forecast?.forecastday![0].day?.avgtemp_c,
+      stateWeather:forecast?.forecastday![0].day?.condition?.text,
+      imagePath:_getImg(),
+      color: _getColor()
+    );
   }
 
+  String _getImg() {
+  String?  weatherStateName=forecast?.forecastday![0].day?.condition?.text;
+    String img = (weatherStateName == 'Sunny' || weatherStateName == 'Clear')
+        ? 'assets/img/clear.png'
+        : (weatherStateName == 'Cloudy' || weatherStateName == 'Snow')
+            ? 'assets/img/cloudy.png'
+            : 'assets/img/rainy.png';
+    return img;
+  }
 
-  MaterialColor getcolor(){
-    MaterialColor color=
-    (weatherStateName=='Sunny'||weatherStateName=='Clear')?
-    Colors.orange:
-    (weatherStateName=='Partly cloudy'||weatherStateName=='Snow')?
-    Colors.teal:
-    (weatherStateName=='Patchy rain possible')?
-    Colors.grey:
-        Colors.lightBlue
-    ;
+  Color _getColor() {
+    String?  weatherStateName=forecast?.forecastday![0].day?.condition?.text;
+    MaterialColor color = (weatherStateName == 'Sunny' ||
+            weatherStateName == 'Clear')
+        ? Colors.orange
+        : (weatherStateName == 'Partly cloudy' || weatherStateName == 'Snow')
+            ? Colors.teal
+            : (weatherStateName == 'Patchy rain possible')
+                ? Colors.grey
+                : Colors.lightBlue;
 
     return color;
   }
-  @override
-  String toString() {
-    // TODO: implement toString
-    return '\ndate: $date\ntemp: $temp\nmaxTemp:$maxTemp\nminTemp:$minTemp\nweatherStateName:$weatherStateName';
+}
+
+class Location {
+  String? name;
+  String? country;
+  String? localtime;
+
+  Location({this.name, this.country, this.localtime});
+
+  Location.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    country = json['country'];
+    localtime = json['localtime'];
+  }
+
+  // Map<String, dynamic> toJson() {
+  //   final Map<String, dynamic> data = new Map<String, dynamic>();
+  //   data['name'] = this.name;
+  //   data['country'] = this.country;
+  //   data['localtime'] = this.localtime;
+  //   return data;
+  // }
+}
+
+class Forecast {
+  List<Forecastday>? forecastday;
+
+  Forecast({this.forecastday});
+
+  Forecast.fromJson(Map<String, dynamic> json) {
+    if (json['forecastday'] != null) {
+      forecastday = <Forecastday>[];
+      json['forecastday'].forEach((v) {
+        forecastday!.add(new Forecastday.fromJson(v));
+      });
+    }
   }
 }
+
+class Forecastday {
+  Day? day;
+
+  Forecastday({this.day});
+
+  Forecastday.fromJson(Map<String, dynamic> json) {
+    day = json['day'] != null ? new Day.fromJson(json['day']) : null;
+  }
+
+}
+
+
+class Day {
+  double? maxtempC;
+  double? mintempC;
+  double? avgtemp_c;
+  Condition? condition;
+
+  Day({this.maxtempC, this.mintempC, this.condition,this.avgtemp_c});
+
+  Day.fromJson(Map<String, dynamic> json) {
+    maxtempC = json['maxtemp_c'];
+    mintempC = json['mintemp_c'];
+    avgtemp_c = json['avgtemp_c'];
+    condition = json['condition'] != null
+        ? new Condition.fromJson(json['condition'])
+        : null;
+  }
+
+
+
+}
+
+class Condition {
+  String? text;
+  String? icon;
+
+  Condition({this.text, this.icon});
+
+  Condition.fromJson(Map<String, dynamic> json) {
+    text = json['text'];
+    icon = json['icon'];
+  }
+
+
+  String getImg() {
+    String img = (text == 'Sunny' || text == 'Clear')
+        ? 'assets/img/clear.png'
+        : (text == 'Cloudy' || text == 'Snow')
+            ? 'assets/img/cloudy.png'
+            : 'assets/img/rainy.png';
+    return img;
+  }
+
+
+}
+

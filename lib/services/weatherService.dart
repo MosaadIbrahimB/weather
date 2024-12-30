@@ -8,9 +8,14 @@ class WeatherService {
 
   Future<WeatherModel> getWeather({required String cityName}) async {
     Uri url = Uri.parse('$baseUrl/forecast.json?key=$key &q=$cityName&aqi=no');
-    http.Response response = await http.get(url);
-    Map<String, dynamic> data = jsonDecode(response.body);
-    WeatherModel WeatherFromJson = WeatherModel.fromjson(data);
-    return WeatherFromJson;
+    try {
+      http.Response response = await http.get(url);
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print(data);
+      WeatherModel WeatherFromJson = WeatherModel.fromJson(data);
+      return WeatherFromJson;
+    } on Exception catch (e) {
+      throw e;
+    }
   }
 }
